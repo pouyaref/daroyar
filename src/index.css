@@ -1,0 +1,100 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@font-face{
+    font-family: main;
+    src: url(./B-Mitra/B\ Mitra\ Bold_0.ttf);
+}
+
+body{
+  font-family: main;
+}
+
+/* در index.css اضافه کن */
+
+/* بهبود تایپوگرافی در موبایل */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+  
+  h1 {
+    font-size: 2rem !important;
+  }
+  
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* بهبود دکمه‌ها در موبایل */
+button, 
+input[type="submit"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* بهبود input در موبایل */
+input, 
+textarea, 
+select {
+  font-size: 16px !important;
+}
+
+/* حذف outline ناخواسته در موبایل */
+button:focus,
+input:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* بهبود اسکرول */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* انیمیشن‌های نرم */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* جلوگیری از زوم در iOS */
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="search"] {
+    font-size: 16px;
+  }
+}
+
+/* بهبود performance */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* بهبود نمایش در حالت landscape */
+@media (orientation: landscape) and (max-height: 500px) {
+  .min-h-screen {
+    min-height: auto;
+  }
+}
