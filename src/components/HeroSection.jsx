@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { 
   Search, 
@@ -27,18 +28,20 @@ const STATS_DATA = [
 
 const HeroSection = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      console.log('جستجو برای:', searchQuery);
-      // در اینجا می‌توانید منطق جستجو را اضافه کنید
+      // هدایت به صفحه نتایج جستجو
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
   const handleQuickSearch = (tagName) => {
     setSearchQuery(tagName);
-    // می‌توانید جستجوی خودکار هم انجام دهید
+    // هدایت مستقیم به نتایج جستجو
+    navigate(`/search?q=${encodeURIComponent(tagName)}`);
   };
 
   // کامپوننت پس‌زمینه
@@ -87,10 +90,16 @@ const HeroSection = () => {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && searchQuery.trim()) {
+              handleSearch(e);
+            }
+          }}
           placeholder="مثال: آموکسی‌سیلین، سرماخوردگی، سردرد..."
           className="w-full py-4 pr-14 pl-4 text-base bg-gray-50 text-gray-800 rounded-xl border border-blue-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-colors"
           dir="rtl"
           aria-label="جستجوی دارو"
+          autoComplete="off"
         />
         <button
           type="submit"

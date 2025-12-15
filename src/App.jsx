@@ -8,6 +8,7 @@ import HeroSection from './components/HeroSection';
 import Footer from './components/Footer';
 import DrugCategories from './pages/DrugCategories';
 import DrugDetail from './pages/DrugDetail';
+import SearchResults from './pages/SearchResults';
 import Articles from './pages/Articles';
 import QAPage from './pages/QAPage';
 import Contact from './pages/Contact';
@@ -28,6 +29,9 @@ function App() {
             
             {/* دسته‌بندی داروها */}
             <Route path="/categories" element={<DrugCategories />} />
+            
+            {/* نتایج جستجو */}
+            <Route path="/search" element={<SearchResults />} />
             
             {/* جزئیات دارو */}
             <Route path="/drug/:id" element={<DrugDetail />} />

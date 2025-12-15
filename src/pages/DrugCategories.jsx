@@ -1,85 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Search, Activity } from 'lucide-react';
-
-// ثابت‌های خارج از کامپوننت
-const CATEGORIES_DATA = [
-  { 
-    id: 1, 
-    name: 'آنتی‌بیوتیک', 
-    count: 247, 
-    color: 'from-blue-500 to-blue-600',
-    icon: '💊',
-    sub: ['پنی‌سیلین', 'ماکرولید', 'کینولون'] 
-  },
-  { 
-    id: 2, 
-    name: 'مسکن و ضدالتهاب', 
-    count: 186, 
-    color: 'from-red-500 to-red-600',
-    icon: '🩹',
-    sub: ['NSAID', 'اپیوئید', 'تب‌بر'] 
-  },
-  { 
-    id: 3, 
-    name: 'داروهای گوارشی', 
-    count: 142, 
-    color: 'from-green-500 to-green-600',
-    icon: '🍃',
-    sub: ['PPI', 'آنتی‌هیستامین H2', 'ضد اسهال'] 
-  },
-  { 
-    id: 4, 
-    name: 'داروهای قلبی', 
-    count: 198, 
-    color: 'from-purple-500 to-purple-600',
-    icon: '❤️',
-    sub: ['استاتین', 'بتا بلوکر', 'ACE مهارکننده'] 
-  },
-  { 
-    id: 5, 
-    name: 'داروهای دیابت', 
-    count: 134, 
-    color: 'from-orange-500 to-orange-600',
-    icon: '🩸',
-    sub: ['بی‌گوانید', 'سولفونیل اوره', 'انسولین'] 
-  },
-  { 
-    id: 6, 
-    name: 'داروهای اعصاب', 
-    count: 167, 
-    color: 'from-indigo-500 to-indigo-600',
-    icon: '🧠',
-    sub: ['SSRI', 'بنزودیازپین', 'آنتی‌سایکوتیک'] 
-  },
-  { 
-    id: 7, 
-    name: 'آلرژی و تنفسی', 
-    count: 124, 
-    color: 'from-cyan-500 to-cyan-600',
-    icon: '🌬️',
-    sub: ['آنتی‌هیستامین', 'کورتون استنشاقی', 'برونکودیلاتور'] 
-  },
-  { 
-    id: 8, 
-    name: 'هورمون و غدد', 
-    count: 98, 
-    color: 'from-pink-500 to-pink-600',
-    icon: '⚖️',
-    sub: ['تیروئید', 'کورتون', 'هورمون جنسی'] 
-  },
-];
-
-const STATS_DATA = [
-  { value: '۵,۸۴۷', label: 'کل داروها', color: 'text-blue-600' },
-  { value: '۸', label: 'دسته‌بندی اصلی', color: 'text-green-600' },
-  { value: '۲۴', label: 'زیردسته‌بندی', color: 'text-purple-600' },
-  { value: '۱۲', label: 'سازنده دارویی', color: 'text-orange-600' },
-];
+import { ChevronRight, Search, Activity, Loader2, AlertCircle } from 'lucide-react';
+import { getDrugCategories } from '../services/gapgptApi';
 
 const DrugCategories = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [categoriesData, setCategoriesData] = useState([]);
+  const [statsData, setStatsData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // بارگذاری دسته‌بندی‌ها از API
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getDrugCategories();
+        
+        if (data.categories) {
+          setCategoriesData(data.categories);
+        }
+        
+        if (data.stats) {
+          setStatsData([
+            { value: data.stats.totalDrugs || '۰', label: 'کل داروها', color: 'text-blue-600' },
+            { value: data.stats.totalCategories || '۰', label: 'دسته‌بندی اصلی', color: 'text-green-600' },
+            { value: data.stats.totalSubCategories || '۰', label: 'زیردسته‌بندی', color: 'text-purple-600' },
+            { value: data.stats.totalManufacturers || '۰', label: 'سازنده دارویی', color: 'text-orange-600' },
+          ]);
+        }
+      } catch (err) {
+        console.error('خطا در بارگذاری دسته‌بندی‌ها:', err);
+        setError('خطا در بارگذاری اطلاعات. لطفاً دوباره تلاش کنید.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -89,9 +50,9 @@ const DrugCategories = () => {
     }
   };
 
-  const filteredCategories = CATEGORIES_DATA.filter(category =>
+  const filteredCategories = categoriesData.filter(category =>
     category.name.includes(searchQuery) ||
-    category.sub.some(sub => sub.includes(searchQuery))
+    (category.sub && category.sub.some(sub => sub.includes(searchQuery)))
   );
 
   // کامپوننت هدر صفحه
@@ -244,7 +205,7 @@ const DrugCategories = () => {
         <h3 className="text-xl font-bold text-gray-800">📊 آمار دسته‌بندی‌ها</h3>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {STATS_DATA.map((stat, index) => (
+        {statsData.map((stat, index) => (
           <div 
             key={index}
             className="
@@ -263,6 +224,46 @@ const DrugCategories = () => {
     </div>
   );
 
+  // نمایش حالت بارگذاری
+  if (loading) {
+    return (
+      <div 
+        className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50 flex items-center justify-center"
+        dir="rtl"
+      >
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">در حال بارگذاری دسته‌بندی‌ها...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // نمایش حالت خطا
+  if (error) {
+    return (
+      <div 
+        className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50"
+        dir="rtl"
+      >
+        <PageHeader />
+        <div className="container mx-auto px-4 py-8 -mt-8">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+            <AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-red-800 mb-2">خطا در بارگذاری</h3>
+            <p className="text-red-600 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700"
+            >
+              تلاش مجدد
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div 
       className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50"
@@ -280,7 +281,7 @@ const DrugCategories = () => {
               دسته‌بندی‌های اصلی
             </h2>
             <span className="text-sm text-gray-500">
-              مجموع: {CATEGORIES_DATA.length} دسته‌بندی
+              مجموع: {categoriesData.length} دسته‌بندی
             </span>
           </div>
           
@@ -290,14 +291,16 @@ const DrugCategories = () => {
             ))}
           </div>
 
-          {filteredCategories.length === 0 && (
+          {filteredCategories.length === 0 && !loading && (
             <div className="text-center py-12">
               <div className="text-5xl mb-4">🔍</div>
               <h3 className="text-xl font-bold text-gray-700 mb-2">
                 دسته‌بندی یافت نشد
               </h3>
               <p className="text-gray-500">
-                هیچ دسته‌بندی با عبارت "{searchQuery}" پیدا نشد
+                {searchQuery 
+                  ? `هیچ دسته‌بندی با عبارت "${searchQuery}" پیدا نشد`
+                  : 'هیچ دسته‌بندی یافت نشد'}
               </p>
             </div>
           )}
